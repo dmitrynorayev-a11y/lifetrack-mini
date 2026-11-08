@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f6f4f0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="LifeTrack">
-<title>LifeTrack Mini 2.0</title>
+<title>LifeTrack Mini 2.1</title>
 <style>
 :root{color-scheme:light dark;--bg:#f6f4f0;--card:#fff;--ink:#242322;--muted:#817e7b;--line:#e9e6e1;--accent:#7662cf;--soft:#f0ecfc;--green:#287b52;--good:#e5f4e9;--danger:#c44444;--shadow:0 10px 30px #28221a08}
 @media(prefers-color-scheme:dark){:root{--bg:#111113;--card:#202023;--ink:#f4f2f0;--muted:#aaa7aa;--line:#35343a;--accent:#aa98ff;--soft:#302a43;--green:#74d99d;--good:#1e382b;--danger:#ff8585;--shadow:none}}
@@ -21,7 +21,7 @@ h1{font-size:34px;letter-spacing:-1px;line-height:1.15;margin:0 0 8px}h2{font-si
 .field{display:block;font-weight:700;font-size:13px;margin:17px 0 7px}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:14px;background:var(--bg);color:var(--ink);padding:13px;font-size:16px}textarea{resize:vertical;min-height:78px}.form-actions{display:flex;gap:10px;margin-top:24px}.form-actions button{flex:1}.back{border:0;background:none;color:var(--accent);padding:4px 0 20px;font-weight:700}.empty{text-align:center;padding:32px 12px;color:var(--muted)}.statgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.statgrid .panel{margin:0}.big{font-size:32px;font-weight:800}.hidden{display:none!important}.note{padding:12px;background:var(--soft);color:var(--accent);border-radius:14px;font-size:12px;line-height:1.5;margin-top:14px}.danger{color:var(--danger)!important}
 </style>
 </head>
-<body><main class="app"><header class="top"><div class="brand">✦ LifeTrack <span style="color:var(--accent)">Mini</span></div><div class="pill">Версия 2.0</div></header><div id="screen"></div></main>
+<body><main class="app"><header class="top"><div class="brand">✦ LifeTrack <span style="color:var(--accent)">Mini</span></div><div class="pill">Версия 2.1</div></header><div id="screen"></div></main>
 <nav class="nav" aria-label="Разделы"><button data-tab="today"><span>⌂</span>Сегодня</button><button data-tab="challenges"><span>◎</span>Челленджи</button><button data-tab="progress"><span>▥</span>Прогресс</button></nav>
 <script>
 (()=>{
@@ -126,7 +126,7 @@ function render(){nav.classList.toggle('hidden',!!detail||['form','library','tem
 function back(){if(tab==='form'){tab=template!==null?'template':editing?'challenges':'today';editing=null}else if(tab==='template'){tab='library'}else if(tab==='library'){tab='challenges';template=null}else{detail=null}render()}
 document.addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b)return;
- if(b.dataset.tab){tab=b.dataset.tab;detail=null;editing=null;render();return}
+ if(b.dataset.tab){tab=b.dataset.tab;detail=null;editing=null;template=null;render();return}
  if(b.hasAttribute('data-back')){back();return}
  if(b.hasAttribute('data-new')){editing=null;template=null;detail=null;tab='form';render();return}
  if(b.hasAttribute('data-library')){tab='library';template=null;render();return}
