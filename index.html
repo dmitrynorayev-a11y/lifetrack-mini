@@ -27,7 +27,7 @@ h1{font-size:34px;letter-spacing:-1px;line-height:1.15;margin:0 0 8px}h2{font-si
 /* Dashboard 2.4 — compact activity cards, adaptive theme */
 .dash-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:16px 0 12px}.dash-title b{font-size:21px}.dash-title span{font-size:12px;color:var(--muted);text-transform:capitalize}.dash-main,.dash-card{background:var(--card);border-radius:21px;padding:17px;box-shadow:var(--shadow)}.dash-heading{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:750}.dash-figures{display:flex;gap:32px;margin:15px 0 12px}.dash-figures strong{display:block;font-size:28px;letter-spacing:-1px}.dash-figures small,.dash-card-bottom small{display:block;font-size:11px;color:var(--muted)}.dash-chart{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:7px;align-items:end;height:128px}.dash-column{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:10px;color:var(--muted)}.dash-bar-track{height:94px;width:100%;display:flex;align-items:end}.dash-bar{position:relative;width:100%;border-radius:9px;background:linear-gradient(0deg,#bad5bf,#dbe9df);min-height:8px}.dash-bar.is-today{background:linear-gradient(0deg,#36c953,#c5f03b)}.dash-tip{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(100% + 5px);border-radius:20px;background:var(--ink);color:var(--card);padding:3px 7px;font-size:10px}.dash-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-top:12px}.dash-card{min-height:112px;padding:15px}.dash-card-label{font-size:13px;font-weight:750}.dash-card-bottom{display:flex;align-items:end;justify-content:space-between;gap:5px;margin-top:21px}.dash-card-bottom strong{display:block;font-size:26px;line-height:1.05}.dash-ring{width:40px;height:40px;flex-shrink:0;border-radius:50%;background:conic-gradient(var(--ring) calc(var(--value)*1%),var(--line) 0);mask:radial-gradient(farthest-side,transparent 65%,black 69%);-webkit-mask:radial-gradient(farthest-side,transparent 65%,black 69%)}.dash-spark{width:65px;height:37px}.stat-challenge .progress{height:11px;background:var(--line);border-radius:20px}.stat-challenge .progress>span{background:linear-gradient(90deg,#8bcda3,#41ce73)}
 @media(prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#111315;--card:#090b0c;--ink:#f3f4f3;--muted:#a1a6a3;--line:#292d2b;--accent:#a78be9;--soft:#302a41;--green:#65d89c;--good:#193d2b;--shadow:0 8px 24px #0002}.dash-bar{background:linear-gradient(0deg,#3e5948,#536e5b)}.dash-bar.is-today{background:linear-gradient(0deg,#2cbd50,#a6ea36)}.dash-tip{background:#e8eae8;color:#111}.panel{border-color:var(--line)}.detail-section p{color:var(--muted)}}
-</style>
+.swipe-wrap{position:relative;overflow:hidden;border-radius:22px;margin-bottom:11px;isolation:isolate}.swipe-wrap .today-compact{position:relative;margin:0!important;z-index:1;transition:transform .2s ease;touch-action:pan-y}.swipe-wrap.swipe-open .swipe-card{transform:translateX(-108px)}.swipe-delete{position:absolute;right:0;top:0;bottom:0;width:108px;border:0;background:#e34e55;color:white;font-size:14px;font-weight:750;border-radius:0 22px 22px 0}.swipe-wrap .swipe-card:active{transition:none}</style>
 </head>
 <body><main class="app"><header class="top"><div class="brand">✦ LifeTrack <span style="color:var(--accent)">Mini</span></div></header><div id="screen"></div></main>
 <nav class="nav" aria-label="Разделы"><button data-tab="today" aria-label="Сегодня"><span>⌂</span></button><button data-tab="progress" aria-label="Статистика"><span>⬡</span></button><button data-tab="library" aria-label="Челленджи"><span>ϟ</span></button></nav>
@@ -63,8 +63,8 @@ function todayCard(c){
  let week='<div class="week">';
  for(let i=0;i<7;i++){const d=shift(today(),i-offset);week+='<div class="day">'+dow[i]+'<b class="'+(c.marks[d]?'done ':'')+(d===today()?'current':'')+'">'+(c.marks[d]?'✓':Number(d.slice(-2)))+'</b></div>'}
  week+='</div>';
- return '<article class="panel today-compact"><div class="row"><div class="grow"><div class="eyebrow">'+escape(c.category)+'</div><div class="name">'+escape(c.name)+'</div></div><span class="pill">'+(c.legacy?'Привычка':Math.min(Math.max(idx,0),c.duration)+'/'+c.duration)+'</span></div>'+
- week+'<div class="compact-actions"><button class="btn '+(done?'secondary':'')+'" data-done="'+escape(c.id)+'" '+(!active?'disabled':'')+'>'+(done?'✓ Выполнено':'✓ Отметить')+'</button><button class="compact-detail" data-detail="'+escape(c.id)+'" aria-label="Открыть календарь">▦</button></div></article>';
+ return '<div class="swipe-wrap" data-swipe-id="'+escape(c.id)+'"><button class="swipe-delete" data-delete="'+escape(c.id)+'" aria-label="Удалить челлендж '+escape(c.name)+'">🗑 Удалить</button><article class="panel today-compact swipe-card"><div class="row"><div class="grow"><div class="eyebrow">'+escape(c.category)+'</div><div class="name">'+escape(c.name)+'</div></div><span class="pill">'+(c.legacy?'Привычка':Math.min(Math.max(idx,0),c.duration)+'/'+c.duration)+'</span></div>'+
+ week+'<div class="compact-actions"><button class="btn '+(done?'secondary':'')+'" data-done="'+escape(c.id)+'" '+(!active?'disabled':'')+'>'+(done?'✓ Выполнено':'✓ Отметить')+'</button><button class="compact-detail" data-detail="'+escape(c.id)+'" aria-label="Открыть календарь">▦</button></div></article></div>';
 }
 function renderToday(){
  const list=data.challenges.filter(c=>currentDay(c)>=1&&currentDay(c)<=c.duration);
@@ -168,6 +168,37 @@ document.addEventListener('click',e=>{
  if(b.hasAttribute('data-export')){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='lifetrack-backup-'+today()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);return}
  if(b.hasAttribute('data-import')){document.getElementById('importFile').click()}
 });
+let swipeState=null;
+root.addEventListener('touchstart',e=>{
+ const wrap=e.target.closest('.swipe-wrap');
+ if(tab!=='today'||!wrap||e.touches.length!==1){swipeState=null;return}
+ const t=e.touches[0];
+ swipeState={wrap,x:t.clientX,y:t.clientY,start:wrap.classList.contains('swipe-open')?-108:0,locked:null};
+},{passive:true});
+root.addEventListener('touchmove',e=>{
+ if(!swipeState)return;
+ const t=e.touches[0],dx=t.clientX-swipeState.x,dy=t.clientY-swipeState.y;
+ if(swipeState.locked===null&&Math.max(Math.abs(dx),Math.abs(dy))>9)swipeState.locked=Math.abs(dx)>Math.abs(dy)*1.3?'horizontal':'vertical';
+ if(swipeState.locked!=='horizontal')return;
+ if(e.cancelable)e.preventDefault();
+ const x=Math.max(-108,Math.min(0,swipeState.start+dx));
+ swipeState.wrap.querySelector('.swipe-card').style.transform='translateX('+x+'px)';
+},{passive:false});
+root.addEventListener('touchend',e=>{
+ if(!swipeState)return;
+ const state=swipeState;swipeState=null;
+ if(state.locked!=='horizontal')return;
+ const dx=e.changedTouches[0].clientX-state.x;
+ const open=state.start+dx<-54;
+ root.querySelectorAll('.swipe-wrap.swipe-open').forEach(w=>{if(w!==state.wrap){w.classList.remove('swipe-open');w.querySelector('.swipe-card').style.transform=''}});
+ state.wrap.classList.toggle('swipe-open',open);
+ state.wrap.querySelector('.swipe-card').style.transform='';
+},{passive:true});
+root.addEventListener('touchcancel',()=>{if(swipeState){swipeState.wrap.querySelector('.swipe-card').style.transform='';swipeState=null}},{passive:true});
+root.addEventListener('click',e=>{
+ const card=e.target.closest('.swipe-wrap.swipe-open .swipe-card');
+ if(card){e.preventDefault();e.stopPropagation();const wrap=card.closest('.swipe-wrap');wrap.classList.remove('swipe-open');card.style.transform=''}
+},true);
 let touchY=null,touchX=null;
 document.addEventListener('touchstart',e=>{if(tab==='today'&&!detail&&window.scrollY<35){touchY=e.touches[0].clientY;touchX=e.touches[0].clientX}else{touchY=null}},{passive:true});
 document.addEventListener('touchend',e=>{if(touchY===null)return;const dy=e.changedTouches[0].clientY-touchY,dx=e.changedTouches[0].clientX-touchX;touchY=null;if(dy>95&&Math.abs(dx)<70){tab='progress';render();window.scrollTo(0,0)}},{passive:true});
