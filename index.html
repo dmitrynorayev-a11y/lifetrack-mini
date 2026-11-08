@@ -1,208 +1,129 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>LifeTrack Mini — трекер привычек</title>
-<meta name="description" content="Личный трекер привычек: отмечай дни и следи за прогрессом." />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f6f4f0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="LifeTrack">
+<title>LifeTrack Mini 2.0</title>
 <style>
-  :root{--ink:#0a0a0b;--raised:#141417;--line:#26262b;--porcelain:#ece8e1;--dim:#a7a39c;--muted:#6b6b70;--iris:#6e56f7;--iris-b:#8b78ff;--ember:#f76e56;--green:#4ade80;
-    --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:ui-monospace,"SF Mono",Menlo,monospace}
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:16px;padding:28px 18px 44px;font-family:var(--font);color:var(--porcelain);
-    background:radial-gradient(circle at 50% -10%,rgba(110,86,247,.14),transparent 55%),var(--ink);-webkit-font-smoothing:antialiased}
-  h1{font-size:clamp(1.05rem,4.5vw,1.35rem);font-weight:650;text-align:center;line-height:1.35;max-width:100%}
-  .card{width:min(760px,100%);background:var(--raised);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:16px}
-  .add{display:flex;gap:10px}
-  .add input{flex:1;min-width:0;background:var(--ink);border:1px solid var(--line);border-radius:10px;color:var(--porcelain);padding:11px 13px;font:400 .9rem var(--font)}
-  .add input:focus{outline:none;border-color:var(--iris)}
-  .add button{font:500 .85rem var(--font);padding:11px 18px;border-radius:999px;border:1px solid var(--porcelain);background:var(--porcelain);color:var(--ink);cursor:pointer;transition:.25s}
-  .add button:hover{background:transparent;color:var(--porcelain)}
-  .habit{border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--ink)}
-  .habit__head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-  .habit__name{font-weight:600;font-size:.95rem;margin-right:auto;overflow-wrap:anywhere}
-  .streak{font:600 .7rem var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
-  .streak b{color:var(--iris-b)}
-  .today{font:600 .78rem var(--font);padding:8px 15px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--dim);cursor:pointer;transition:.2s}
-  .today:hover{border-color:var(--iris);color:var(--iris-b)}
-  .today.done{border-color:rgba(74,222,128,.5);color:var(--green);background:rgba(74,222,128,.06)}
-  .del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;padding:4px 6px;border-radius:6px}
-  .del:hover{color:var(--ember)}
-  .heatmap-scroll{width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;padding:3px 1px 8px}
-  .heatmap{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,10px);grid-template-columns:repeat(26,10px);gap:3px;width:max-content}
-  .cell{width:10px;height:10px;border-radius:2.5px;background:var(--line)}
-  .cell[data-v="1"]{background:rgba(110,86,247,.45)}
-  .cell[data-v="2"]{background:var(--iris)}
-  .cell[data-v="3"]{background:var(--iris-b)}
-  .cell.today-cell{outline:1px solid var(--porcelain)}
-  .legend{display:flex;align-items:center;gap:5px;font:500 .64rem var(--mono);color:var(--muted);justify-content:flex-end}
-  .legend .cell{display:inline-block}
-  .empty{color:var(--muted);font-style:italic;font-size:.85rem;text-align:center;padding:14px}
-  .foot{font-size:.75rem;color:var(--muted)}
-  .foot a{color:var(--dim);text-decoration:none}
-  #habits{display:flex;flex-direction:column;gap:14px;min-width:0}
-  .hint{font-size:.72rem;color:var(--muted);line-height:1.4}
-  @media(max-width:480px){
-    body{padding:24px 14px calc(35px + env(safe-area-inset-bottom));gap:20px;width:100%;overflow-x:hidden}
-    .card{width:100%;min-width:0;padding:14px;border-radius:16px}
-    .habit{padding:13px;min-width:0}
-    .habit__head{gap:9px}
-    .habit__name{flex-basis:100%;font-size:1rem}
-    .streak{margin-right:auto;line-height:1.6}
-    .add{gap:8px}
-    .add input{font-size:16px;padding:11px 10px}
-    .add button{padding:11px 13px}
-    .today{min-height:38px}
-  }
+:root{color-scheme:light dark;--bg:#f6f4f0;--card:#fff;--ink:#242322;--muted:#817e7b;--line:#e9e6e1;--accent:#7662cf;--soft:#f0ecfc;--green:#287b52;--good:#e5f4e9;--danger:#c44444;--shadow:0 10px 30px #28221a08}
+@media(prefers-color-scheme:dark){:root{--bg:#111113;--card:#202023;--ink:#f4f2f0;--muted:#aaa7aa;--line:#35343a;--accent:#aa98ff;--soft:#302a43;--green:#74d99d;--good:#1e382b;--danger:#ff8585;--shadow:none}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{max-width:680px;margin:auto;padding:calc(22px + env(safe-area-inset-top)) 18px calc(105px + env(safe-area-inset-bottom))}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}.brand{font-weight:800;letter-spacing:-.5px;font-size:20px}.pill{background:var(--soft);color:var(--accent);border-radius:40px;padding:8px 12px;font-size:12px;font-weight:700}
+h1{font-size:34px;letter-spacing:-1px;line-height:1.15;margin:0 0 8px}h2{font-size:21px;margin:26px 0 14px;letter-spacing:-.4px}p{margin:0}.sub{color:var(--muted);font-size:14px;line-height:1.5}.panel{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:var(--shadow);margin-top:14px;min-width:0}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px}.grow{flex:1;min-width:0}.name{font-weight:750;font-size:18px;overflow-wrap:anywhere}.eyebrow{font-size:12px;color:var(--accent);font-weight:750;letter-spacing:.4px}.small{font-size:12px;color:var(--muted)}.progress{height:9px;border-radius:30px;background:var(--line);overflow:hidden;margin:15px 0 8px}.progress>span{display:block;background:var(--accent);height:100%;border-radius:30px}.btn{border:0;border-radius:16px;padding:13px 16px;background:var(--accent);color:#fff;font-weight:750}.btn.secondary{background:var(--soft);color:var(--accent)}.btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}.btn.full{width:100%}.btn:disabled{opacity:.45}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.actions .btn{flex:1}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin:18px 0}.day{text-align:center;font-size:11px;color:var(--muted);min-width:0}.day b{display:flex;align-items:center;justify-content:center;margin:7px auto 0;width:min(36px,100%);aspect-ratio:1;border-radius:50%;background:var(--bg);font-size:12px;color:var(--ink)}.day b.done{background:var(--good);color:var(--green)}.day b.current{outline:2px solid var(--accent);outline-offset:1px}
+.grid-days{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-top:16px}.tile{aspect-ratio:1;border-radius:13px;border:1px solid var(--line);background:var(--bg);color:var(--muted);font-weight:750;min-width:0}.tile.done{background:var(--good);color:var(--green);border-color:var(--green)}.tile.current{border:2px solid var(--accent);color:var(--ink)}.tile.future{opacity:.55}.tile:disabled{cursor:default}
+.nav{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(calc(100% - 32px),640px);display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);border:1px solid var(--line);border-radius:24px;padding:6px;box-shadow:0 12px 40px #0002;z-index:10}.nav button{background:transparent;border:0;border-radius:18px;padding:11px 3px;color:var(--muted);font-size:12px;font-weight:650}.nav button.active{background:var(--soft);color:var(--accent)}.nav button span{display:block;font-size:21px;margin-bottom:3px}
+.field{display:block;font-weight:700;font-size:13px;margin:17px 0 7px}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:14px;background:var(--bg);color:var(--ink);padding:13px;font-size:16px}textarea{resize:vertical;min-height:78px}.form-actions{display:flex;gap:10px;margin-top:24px}.form-actions button{flex:1}.back{border:0;background:none;color:var(--accent);padding:4px 0 20px;font-weight:700}.empty{text-align:center;padding:32px 12px;color:var(--muted)}.statgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.statgrid .panel{margin:0}.big{font-size:32px;font-weight:800}.hidden{display:none!important}.note{padding:12px;background:var(--soft);color:var(--accent);border-radius:14px;font-size:12px;line-height:1.5;margin-top:14px}.danger{color:var(--danger)!important}
 </style>
 </head>
-<body>
-  <h1>LifeTrack Mini — Каждый день лучше</h1>
-  <div class="card">
-    <div class="add">
-      <input id="name" maxlength="40" placeholder="Например, читать 20 минут" aria-label="Название привычки" />
-      <button id="add" type="button">Добавить</button>
-    </div>
-    <p class="hint">Календарь можно листать пальцем влево и вправо.</p>
-    <div id="habits"></div>
-  </div>
-  <footer class="foot"><a href="https://github.com/Ansagan359/habit-tracker" target="_blank" rel="noopener">Исходный код на GitHub</a></footer>
-
+<body><main class="app"><header class="top"><div class="brand">✦ LifeTrack <span style="color:var(--accent)">Mini</span></div><div class="pill">Версия 2.0</div></header><div id="screen"></div></main>
+<nav class="nav" aria-label="Разделы"><button data-tab="today"><span>⌂</span>Сегодня</button><button data-tab="challenges"><span>◎</span>Челленджи</button><button data-tab="progress"><span>▥</span>Прогресс</button></nav>
 <script>
-(() => {
-  'use strict';
-  const KEY = 'streaks.v1';
-  const $ = (id) => document.getElementById(id);
-  const DAYS = 26 * 7; // ~ half a year of cells, GitHub-style columns by week
-
-  let state = load();
-
-  function load() {
-    try { const raw = localStorage.getItem(KEY); if (raw) return JSON.parse(raw); } catch (_) {}
-    // Новым пользователям показываем пустой трекер без вымышленных отметок.
-    return { habits: [] };
-  }
-  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (_) {} }
-  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
-
-  function isoDaysAgo(n) {
-    const d = new Date();
-    d.setDate(d.getDate() - n);
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-  }
-  const today = () => isoDaysAgo(0);
-
-  function streaks(marks) {
-    let current = 0;
-    // Current streak: today may still be unmarked, so start counting from
-    // today if marked, otherwise from yesterday.
-    let offset = marks[today()] ? 0 : 1;
-    while (marks[isoDaysAgo(offset + current)]) current++;
-    // Сегодня уже включён в цикл выше, второй раз его не считаем.
-
-    let best = 0, run = 0;
-    for (let i = 365; i >= 0; i--) {
-      run = marks[isoDaysAgo(i)] ? run + 1 : 0;
-      if (run > best) best = run;
-    }
-    return { current, best };
-  }
-
-  function render() {
-    const box = $('habits');
-    box.innerHTML = '';
-    if (!state.habits.length) {
-      box.innerHTML = '<div class="empty">Привычек пока нет. Добавь первую выше!</div>';
-      return;
-    }
-    for (const habit of state.habits) box.append(renderHabit(habit));
-  }
-
-  function renderHabit(habit) {
-    const wrap = el('section', 'habit');
-    const head = el('div', 'habit__head');
-    head.append(el('span', 'habit__name', habit.name));
-
-    const s = streaks(habit.marks);
-    const streak = el('span', 'streak');
-    streak.innerHTML = 'СЕРИЯ <b>' + s.current + ' дн.</b> · РЕКОРД <b>' + s.best + ' дн.</b>';
-    head.append(streak);
-
-    const btn = el('button', 'today' + (habit.marks[today()] ? ' done' : ''),
-      habit.marks[today()] ? '✓ Сегодня выполнено' : 'Отметить сегодня');
-    btn.type = 'button';
-    btn.addEventListener('click', () => {
-      if (habit.marks[today()]) delete habit.marks[today()];
-      else habit.marks[today()] = true;
-      save(); render();
-    });
-    head.append(btn);
-
-    const del = el('button', 'del', '✕');
-    del.type = 'button';
-    del.title = 'Удалить привычку';
-    del.setAttribute('aria-label', 'Удалить привычку ' + habit.name);
-    del.addEventListener('click', () => {
-      if (!confirm('Удалить привычку «' + habit.name + '»?')) return;
-      state.habits = state.habits.filter((h) => h.id !== habit.id);
-      save(); render();
-    });
-    head.append(del);
-    wrap.append(head);
-
-    // Heatmap: oldest on the left, aligned to weeks (columns of 7).
-    const map = el('div', 'heatmap');
-    const startOffset = DAYS - 1;
-    for (let i = startOffset; i >= 0; i--) {
-      const iso = isoDaysAgo(i);
-      const cell = el('span', 'cell' + (i === 0 ? ' today-cell' : ''));
-      if (habit.marks[iso]) {
-        // Intensity grows with neighbours marked — purely visual sugar.
-        const nb = (habit.marks[isoDaysAgo(i + 1)] ? 1 : 0) + (habit.marks[isoDaysAgo(i - 1)] ? 1 : 0);
-        cell.dataset.v = String(1 + nb);
-      }
-      cell.title = iso + (habit.marks[iso] ? ' — выполнено' : ' — не выполнено');
-      map.append(cell);
-    }
-    const scroller = el('div', 'heatmap-scroll');
-    scroller.setAttribute('aria-label', 'Календарь выполнения привычки');
-    scroller.append(map);
-    wrap.append(scroller);
-    requestAnimationFrame(() => { scroller.scrollLeft = scroller.scrollWidth; });
-
-    const legend = el('div', 'legend');
-    legend.append('меньше');
-    for (const v of ['', '1', '2', '3']) {
-      const c = el('span', 'cell');
-      if (v) c.dataset.v = v;
-      legend.append(c);
-    }
-    legend.append('больше');
-    wrap.append(legend);
-
-    return wrap;
-  }
-
-  $('add').addEventListener('click', addHabit);
-  $('name').addEventListener('keydown', (e) => { if (e.key === 'Enter') addHabit(); });
-
-  function addHabit() {
-    const name = $('name').value.trim();
-    if (name.length < 2) { $('name').focus(); return; }
-    state.habits.unshift({ id: uid(), name, marks: {} });
-    $('name').value = '';
-    save(); render();
-  }
-
-  function el(tag, cls, text) {
-    const n = document.createElement(tag);
-    if (cls) n.className = cls;
-    if (text != null) n.textContent = text;
-    return n;
-  }
-
-  render();
+(()=>{
+'use strict';
+const KEY='lifetrack.v2',OLD='streaks.v1';
+const root=document.getElementById('screen'),nav=document.querySelector('.nav');
+let tab='today',detail=null,editing=null;
+const date=(d=new Date())=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+const shift=(iso,n)=>{const [y,m,d]=iso.split('-').map(Number);return date(new Date(y,m-1,d+n))};
+const diff=(a,b)=>{const t=s=>{const [y,m,d]=s.split('-').map(Number);return Date.UTC(y,m-1,d)};return Math.round((t(b)-t(a))/86400000)};
+const today=()=>date(),uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const read=k=>{try{return JSON.parse(localStorage.getItem(k)||'null')}catch{return null}};
+function migrate(){
+ const old=read(OLD);if(!old||!Array.isArray(old.habits))return [];
+ return old.habits.map(h=>({id:h.id||uid(),name:String(h.name||'Привычка'),description:'',category:'Привычки',duration:30,repeat:'daily',start:today(),marks:h.marks&&typeof h.marks==='object'?h.marks:{},legacy:true}));
+}
+let data=read(KEY);
+if(!data||!Array.isArray(data.challenges)){data={challenges:migrate()};try{localStorage.setItem(KEY,JSON.stringify(data))}catch{}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data))}catch{alert('Не удалось сохранить данные. Проверь свободное место и настройки Safari.')}}
+function start(c){return c.start||today()}
+function currentDay(c){return diff(start(c),today())+1}
+function count(c){return Array.from({length:c.duration},(_,i)=>shift(start(c),i)).filter(d=>!!c.marks[d]).length}
+function percent(c){return Math.round(count(c)/c.duration*100)}
+function currentStreak(c){let n=0,i=c.marks[today()]?0:1;while(i<366&&c.marks[shift(today(),-i)]){n++;i++}return n}
+function header(title,subtitle){return '<h1>'+escape(title)+'</h1><p class="sub">'+escape(subtitle)+'</p>'}
+function progressBar(c){return '<div class="progress"><span style="width:'+percent(c)+'%"></span></div><div class="row small"><span>'+count(c)+' из '+c.duration+' дней</span><strong>'+percent(c)+'%</strong></div>'}
+function todayCard(c){
+ const done=!!c.marks[today()],idx=currentDay(c),active=idx>=1&&idx<=c.duration;
+ let week='<div class="week">';
+ const dow=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'],now=new Date(),offset=(now.getDay()+6)%7;
+ for(let i=0;i<7;i++){const d=shift(today(),i-offset);week+='<div class="day">'+dow[i]+'<b class="'+(c.marks[d]?'done ':'')+(d===today()?'current':'')+'">'+Number(d.slice(-2))+'</b></div>'}
+ week+='</div>';
+ return '<article class="panel"><div class="row"><div class="grow"><div class="eyebrow">'+escape(c.category)+'</div><div class="name">'+escape(c.name)+'</div></div><span class="pill">'+(c.legacy?'Привычка':'День '+Math.min(Math.max(idx,0),c.duration)+'/'+c.duration)+'</span></div>'+
+ (c.description?'<p class="sub" style="margin-top:8px">'+escape(c.description)+'</p>':'')+week+
+ '<button class="btn full '+(done?'secondary':'')+'" data-done="'+escape(c.id)+'" '+(!active?'disabled':'')+'>'+(done?'✓ Сегодня выполнено':idx<1?'Начнётся '+escape(start(c)):idx>c.duration?'Челлендж завершён':'Отметить выполнение')+'</button>'+
+ '<div class="actions"><button class="btn ghost" data-detail="'+escape(c.id)+'">Открыть календарь</button></div></article>';
+}
+function renderToday(){
+ const list=data.challenges.filter(c=>currentDay(c)>=1&&currentDay(c)<=c.duration);
+ root.innerHTML=header('Сегодня','Твой прогресс начинается с одного действия.')+
+ '<div class="row" style="margin-top:24px"><h2 style="margin:0">Мои задания</h2><button class="btn secondary" data-new>+ Создать</button></div>'+
+ (list.length?list.map(todayCard).join(''):'<div class="panel empty">Активных заданий пока нет.<br>Создай первый челлендж и начни сегодня.</div>');
+}
+function renderChallenges(){
+ root.innerHTML=header('Челленджи','Создавай цели на 7, 14, 21, 30, 60 или 90 дней.')+
+ '<button class="btn full" style="margin-top:22px" data-new>+ Новый челлендж</button>'+
+ (data.challenges.length?data.challenges.map(c=>'<article class="panel"><div class="row"><div class="grow"><div class="eyebrow">'+escape(c.category)+'</div><div class="name">'+escape(c.name)+'</div><p class="small">'+escape(start(c))+' · '+c.duration+' дней'+(c.legacy?' · перенесено из 1.1':'')+'</p></div><button class="btn secondary" data-detail="'+escape(c.id)+'">Открыть</button></div>'+progressBar(c)+'</article>').join(''):'<div class="panel empty">Пока нет челленджей</div>');
+}
+function renderProgress(){
+ const all=data.challenges,total=all.reduce((n,c)=>n+count(c),0),finished=all.filter(c=>percent(c)===100).length;
+ root.innerHTML=header('Мой прогресс','Маленькие шаги складываются в большие результаты.')+
+ '<div class="statgrid" style="margin-top:22px"><div class="panel"><div class="big">'+all.length+'</div><div class="sub">Всего целей</div></div><div class="panel"><div class="big">'+total+'</div><div class="sub">Отметок</div></div><div class="panel"><div class="big">'+finished+'</div><div class="sub">Завершено</div></div><div class="panel"><div class="big">'+Math.max(0,...all.map(currentStreak))+'</div><div class="sub">Текущая серия</div></div></div>'+
+ '<h2>По направлениям</h2>'+(all.length?all.map(c=>'<div class="panel"><div class="row"><b>'+escape(c.name)+'</b><span class="small">'+percent(c)+'%</span></div>'+progressBar(c)+'</div>').join(''):'<div class="panel empty">Здесь появится твоя статистика.</div>')+
+ '<div class="note">Данные хранятся только на этом устройстве в браузере. Для защиты от потери данных сделай резервную копию.</div>'+
+ '<div class="actions"><button class="btn secondary" data-export>Скачать копию данных</button><button class="btn ghost" data-import>Импортировать</button></div><input id="importFile" class="hidden" type="file" accept="application/json,.json">';
+}
+function renderDetail(){
+ const c=data.challenges.find(x=>x.id===detail);if(!c){detail=null;return render()}
+ let grid='';
+ for(let i=0;i<c.duration;i++){const d=shift(start(c),i),future=diff(today(),d)>0,done=!!c.marks[d],isToday=d===today();grid+='<button class="tile '+(done?'done ':'')+(future?'future ':'')+(isToday?'current':'')+'" data-mark="'+escape(c.id)+'" data-date="'+d+'" '+(future?'disabled':'')+' aria-label="День '+(i+1)+(done?', выполнено':'')+'">'+(done?'✓':i+1)+'</button>'}
+ root.innerHTML='<button class="back" data-back>← Назад</button>'+header(c.name,c.description||c.category)+
+ '<div class="panel"><div class="row"><span class="pill">'+escape(c.category)+'</span><span class="small">'+c.duration+' дней · '+(c.repeat==='daily'?'Ежедневно':'По выбору')+'</span></div>'+progressBar(c)+
+ '<h2>Календарь челленджа</h2><p class="sub">Нажми на прошедший день, чтобы отметить или снять выполнение.</p><div class="grid-days">'+grid+'</div>'+
+ '<div class="actions"><button class="btn secondary" data-edit="'+escape(c.id)+'">Настроить</button><button class="btn ghost danger" data-delete="'+escape(c.id)+'">Удалить</button></div></div>';
+}
+function renderForm(){
+ const c=editing?data.challenges.find(x=>x.id===editing):null;
+ const opt=(a,v)=>a.map(x=>'<option value="'+x+'" '+(String(v)===String(x)?'selected':'')+'>'+x+'</option>').join('');
+ root.innerHTML='<button class="back" data-back>← Назад</button>'+header(c?'Настройки челленджа':'Новый челлендж','Выбери цель и двигайся к ней день за днём.')+
+ '<form id="challengeForm" class="panel"><label class="field" for="fName">Название</label><input id="fName" maxlength="60" required placeholder="Например, читать 20 минут" value="'+escape(c?.name||'')+'">'+
+ '<label class="field" for="fDescription">Описание (необязательно)</label><textarea id="fDescription" maxlength="200" placeholder="Зачем мне эта цель?">'+escape(c?.description||'')+'</textarea>'+
+ '<label class="field" for="fCategory">Категория</label><select id="fCategory">'+opt(['Саморазвитие','Английский','Чтение','Тренировки','Здоровье','Творчество','Привычки','Другое'],c?.category||'Саморазвитие')+'</select>'+
+ '<label class="field" for="fDuration">Продолжительность</label><select id="fDuration">'+opt([7,14,21,30,60,90],c?.duration||30)+'</select>'+
+ '<label class="field" for="fRepeat">Повторение</label><select id="fRepeat"><option value="daily" '+(!c||c.repeat==='daily'?'selected':'')+'>Ежедневно</option><option value="flex" '+(c?.repeat==='flex'?'selected':'')+'>По выбору (отмечать нужные дни)</option></select>'+
+ '<label class="field" for="fStart">Дата старта</label><input id="fStart" type="date" required value="'+escape(c?.start||today())+'">'+
+ '<p class="note">Отметки привязаны к календарным датам. При изменении даты старта старые отметки сохранятся, но могут оказаться за пределами нового периода.</p>'+
+ '<div class="form-actions"><button class="btn ghost" type="button" data-back>Отмена</button><button class="btn" type="submit">Сохранить</button></div></form>';
+}
+function render(){nav.classList.toggle('hidden',!!detail||tab==='form');nav.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));if(tab==='form')renderForm();else if(detail)renderDetail();else if(tab==='challenges')renderChallenges();else if(tab==='progress')renderProgress();else renderToday()}
+function back(){if(tab==='form'){tab=editing?'challenges':'today';editing=null}detail=null;render()}
+document.addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.tab){tab=b.dataset.tab;detail=null;editing=null;render();return}
+ if(b.hasAttribute('data-back')){back();return}
+ if(b.hasAttribute('data-new')){editing=null;detail=null;tab='form';render();return}
+ if(b.dataset.detail){detail=b.dataset.detail;render();return}
+ if(b.dataset.edit){editing=b.dataset.edit;detail=null;tab='form';render();return}
+ if(b.dataset.done){const c=data.challenges.find(x=>x.id===b.dataset.done);if(!c)return;c.marks[today()]?delete c.marks[today()]:c.marks[today()]=true;save();render();return}
+ if(b.dataset.mark){const c=data.challenges.find(x=>x.id===b.dataset.mark),d=b.dataset.date;if(!c||diff(today(),d)>0)return;c.marks[d]?delete c.marks[d]:c.marks[d]=true;save();render();return}
+ if(b.dataset.delete){if(!confirm('Удалить челлендж и все его отметки?'))return;data.challenges=data.challenges.filter(x=>x.id!==b.dataset.delete);save();detail=null;render();return}
+ if(b.hasAttribute('data-export')){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='lifetrack-backup-'+today()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);return}
+ if(b.hasAttribute('data-import')){document.getElementById('importFile').click()}
+});
+document.addEventListener('submit',e=>{if(e.target.id!=='challengeForm')return;e.preventDefault();
+ const name=document.getElementById('fName').value.trim();if(name.length<2){alert('Название должно содержать минимум 2 символа');return}
+ const values={name,description:document.getElementById('fDescription').value.trim(),category:document.getElementById('fCategory').value,duration:Number(document.getElementById('fDuration').value),repeat:document.getElementById('fRepeat').value,start:document.getElementById('fStart').value};
+ if(editing){const c=data.challenges.find(x=>x.id===editing);if(c)Object.assign(c,values)}else data.challenges.unshift({id:uid(),...values,marks:{}});
+ save();editing=null;tab='challenges';detail=null;render();
+});
+document.addEventListener('change',async e=>{if(e.target.id!=='importFile')return;try{const obj=JSON.parse(await e.target.files[0].text());if(!Array.isArray(obj.challenges)||!obj.challenges.every(c=>c&&typeof c.name==='string'&&Array.isArray([])&&typeof c.marks==='object'&&c.marks!==null&&[7,14,21,30,60,90].includes(Number(c.duration))))throw Error('Неверный формат');
+ if(!confirm('Заменить текущие данные импортированной копией? Сначала сохрани резервную копию.'))return;data=obj;save();render();alert('Данные восстановлены')}catch(err){alert('Не удалось импортировать файл: '+err.message)}});
+render();
 })();
-</script>
-</body>
-</html>
+</script></body></html>
