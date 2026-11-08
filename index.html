@@ -37,7 +37,7 @@ const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>'
 const read=k=>{try{return JSON.parse(localStorage.getItem(k)||'null')}catch{return null}};
 function migrate(){
  const old=read(OLD);if(!old||!Array.isArray(old.habits))return [];
- return old.habits.map(h=>({id:h.id||uid(),name:String(h.name||'Привычка'),description:'',category:'Привычки',duration:30,repeat:'daily',start:today(),marks:h.marks&&typeof h.marks==='object'?h.marks:{},legacy:true}));
+ return old.habits.map(h=>({id:h.id||uid(),name:String(h.name||'Привычка'),description:'',category:'Привычки',duration:30,repeat:'daily',start:shift(today(),-29),marks:h.marks&&typeof h.marks==='object'?h.marks:{},legacy:true}));
 }
 let data=read(KEY);
 if(!data||!Array.isArray(data.challenges)){data={challenges:migrate()};try{localStorage.setItem(KEY,JSON.stringify(data))}catch{}}
@@ -122,7 +122,7 @@ document.addEventListener('submit',e=>{if(e.target.id!=='challengeForm')return;e
  if(editing){const c=data.challenges.find(x=>x.id===editing);if(c)Object.assign(c,values)}else data.challenges.unshift({id:uid(),...values,marks:{}});
  save();editing=null;tab='challenges';detail=null;render();
 });
-document.addEventListener('change',async e=>{if(e.target.id!=='importFile')return;try{const obj=JSON.parse(await e.target.files[0].text());if(!Array.isArray(obj.challenges)||!obj.challenges.every(c=>c&&typeof c.name==='string'&&Array.isArray([])&&typeof c.marks==='object'&&c.marks!==null&&[7,14,21,30,60,90].includes(Number(c.duration))))throw Error('Неверный формат');
+document.addEventListener('change',async e=>{if(e.target.id!=='importFile')return;try{const obj=JSON.parse(await e.target.files[0].text());if(!Array.isArray(obj.challenges)||!obj.challenges.every(c=>c&&typeof c.name==='string'&&typeof c.marks==='object'&&c.marks!==null&&[7,14,21,30,60,90].includes(Number(c.duration))))throw Error('Неверный формат');
  if(!confirm('Заменить текущие данные импортированной копией? Сначала сохрани резервную копию.'))return;data=obj;save();render();alert('Данные восстановлены')}catch(err){alert('Не удалось импортировать файл: '+err.message)}});
 render();
 })();
