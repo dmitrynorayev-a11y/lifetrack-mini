@@ -1,26 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>LifeTrack Mini — habit tracker</title>
-<meta name="description" content="A habit tracker with a GitHub-style year heatmap and streak counting. Offline, private, no account." />
+<title>LifeTrack Mini — трекер привычек</title>
+<meta name="description" content="Личный трекер привычек: отмечай дни и следи за прогрессом." />
 <style>
   :root{--ink:#0a0a0b;--raised:#141417;--line:#26262b;--porcelain:#ece8e1;--dim:#a7a39c;--muted:#6b6b70;--iris:#6e56f7;--iris-b:#8b78ff;--ember:#f76e56;--green:#4ade80;
     --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:ui-monospace,"SF Mono",Menlo,monospace}
   *{box-sizing:border-box;margin:0;padding:0}
   body{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:16px;padding:28px 18px 44px;font-family:var(--font);color:var(--porcelain);
     background:radial-gradient(circle at 50% -10%,rgba(110,86,247,.14),transparent 55%),var(--ink);-webkit-font-smoothing:antialiased}
-  h1{font-size:1.15rem;font-weight:600}
+  h1{font-size:clamp(1.05rem,4.5vw,1.35rem);font-weight:650;text-align:center;line-height:1.35;max-width:100%}
   .card{width:min(760px,100%);background:var(--raised);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:16px}
   .add{display:flex;gap:10px}
-  .add input{flex:1;background:var(--ink);border:1px solid var(--line);border-radius:10px;color:var(--porcelain);padding:11px 13px;font:400 .9rem var(--font)}
+  .add input{flex:1;min-width:0;background:var(--ink);border:1px solid var(--line);border-radius:10px;color:var(--porcelain);padding:11px 13px;font:400 .9rem var(--font)}
   .add input:focus{outline:none;border-color:var(--iris)}
   .add button{font:500 .85rem var(--font);padding:11px 18px;border-radius:999px;border:1px solid var(--porcelain);background:var(--porcelain);color:var(--ink);cursor:pointer;transition:.25s}
   .add button:hover{background:transparent;color:var(--porcelain)}
   .habit{border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--ink)}
   .habit__head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-  .habit__name{font-weight:600;font-size:.95rem;margin-right:auto}
+  .habit__name{font-weight:600;font-size:.95rem;margin-right:auto;overflow-wrap:anywhere}
   .streak{font:600 .7rem var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
   .streak b{color:var(--iris-b)}
   .today{font:600 .78rem var(--font);padding:8px 15px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--dim);cursor:pointer;transition:.2s}
@@ -28,7 +28,8 @@
   .today.done{border-color:rgba(74,222,128,.5);color:var(--green);background:rgba(74,222,128,.06)}
   .del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;padding:4px 6px;border-radius:6px}
   .del:hover{color:var(--ember)}
-  .heatmap{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,10px);gap:3px;overflow-x:auto;padding-bottom:4px}
+  .heatmap-scroll{width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;padding:3px 1px 8px}
+  .heatmap{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,10px);grid-template-columns:repeat(26,10px);gap:3px;width:max-content}
   .cell{width:10px;height:10px;border-radius:2.5px;background:var(--line)}
   .cell[data-v="1"]{background:rgba(110,86,247,.45)}
   .cell[data-v="2"]{background:var(--iris)}
@@ -39,18 +40,33 @@
   .empty{color:var(--muted);font-style:italic;font-size:.85rem;text-align:center;padding:14px}
   .foot{font-size:.75rem;color:var(--muted)}
   .foot a{color:var(--dim);text-decoration:none}
+  #habits{display:flex;flex-direction:column;gap:14px;min-width:0}
+  .hint{font-size:.72rem;color:var(--muted);line-height:1.4}
+  @media(max-width:480px){
+    body{padding:24px 14px calc(35px + env(safe-area-inset-bottom));gap:20px;width:100%;overflow-x:hidden}
+    .card{width:100%;min-width:0;padding:14px;border-radius:16px}
+    .habit{padding:13px;min-width:0}
+    .habit__head{gap:9px}
+    .habit__name{flex-basis:100%;font-size:1rem}
+    .streak{margin-right:auto;line-height:1.6}
+    .add{gap:8px}
+    .add input{font-size:16px;padding:11px 10px}
+    .add button{padding:11px 13px}
+    .today{min-height:38px}
+  }
 </style>
 </head>
 <body>
-  <h1>LifeTrack Mini - Каждый день лучше</h1>
+  <h1>LifeTrack Mini — Каждый день лучше</h1>
   <div class="card">
     <div class="add">
-      <input id="name" maxlength="40" placeholder="New habit — e.g. Read 20 minutes" />
-      <button id="add" type="button">Add</button>
+      <input id="name" maxlength="40" placeholder="Например, читать 20 минут" aria-label="Название привычки" />
+      <button id="add" type="button">Добавить</button>
     </div>
+    <p class="hint">Календарь можно листать пальцем влево и вправо.</p>
     <div id="habits"></div>
   </div>
-  <footer class="foot"><a href="https://github.com/Ansagan359/habit-tracker" target="_blank" rel="noopener">Source on GitHub</a></footer>
+  <footer class="foot"><a href="https://github.com/Ansagan359/habit-tracker" target="_blank" rel="noopener">Исходный код на GitHub</a></footer>
 
 <script>
 (() => {
@@ -63,12 +79,8 @@
 
   function load() {
     try { const raw = localStorage.getItem(KEY); if (raw) return JSON.parse(raw); } catch (_) {}
-    // Seed one habit with a believable recent history so the demo shows life.
-    const marks = {};
-    for (let i = 0; i < 60; i++) {
-      if (Math.random() < 0.62) marks[isoDaysAgo(i)] = true;
-    }
-    return { habits: [{ id: uid(), name: 'Read 20 minutes', marks }] };
+    // Новым пользователям показываем пустой трекер без вымышленных отметок.
+    return { habits: [] };
   }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (_) {} }
   function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
@@ -86,7 +98,7 @@
     // today if marked, otherwise from yesterday.
     let offset = marks[today()] ? 0 : 1;
     while (marks[isoDaysAgo(offset + current)]) current++;
-    if (marks[today()]) current++; // include today itself
+    // Сегодня уже включён в цикл выше, второй раз его не считаем.
 
     let best = 0, run = 0;
     for (let i = 365; i >= 0; i--) {
@@ -100,7 +112,7 @@
     const box = $('habits');
     box.innerHTML = '';
     if (!state.habits.length) {
-      box.innerHTML = '<div class="empty">No habits yet — add your first one above.</div>';
+      box.innerHTML = '<div class="empty">Привычек пока нет. Добавь первую выше!</div>';
       return;
     }
     for (const habit of state.habits) box.append(renderHabit(habit));
@@ -113,11 +125,11 @@
 
     const s = streaks(habit.marks);
     const streak = el('span', 'streak');
-    streak.innerHTML = 'streak <b>' + s.current + 'd</b> · best <b>' + s.best + 'd</b>';
+    streak.innerHTML = 'СЕРИЯ <b>' + s.current + ' дн.</b> · РЕКОРД <b>' + s.best + ' дн.</b>';
     head.append(streak);
 
     const btn = el('button', 'today' + (habit.marks[today()] ? ' done' : ''),
-      habit.marks[today()] ? '✓ Done today' : 'Mark today');
+      habit.marks[today()] ? '✓ Сегодня выполнено' : 'Отметить сегодня');
     btn.type = 'button';
     btn.addEventListener('click', () => {
       if (habit.marks[today()]) delete habit.marks[today()];
@@ -128,9 +140,10 @@
 
     const del = el('button', 'del', '✕');
     del.type = 'button';
-    del.title = 'Delete habit';
+    del.title = 'Удалить привычку';
+    del.setAttribute('aria-label', 'Удалить привычку ' + habit.name);
     del.addEventListener('click', () => {
-      if (!confirm('Delete "' + habit.name + '"?')) return;
+      if (!confirm('Удалить привычку «' + habit.name + '»?')) return;
       state.habits = state.habits.filter((h) => h.id !== habit.id);
       save(); render();
     });
@@ -148,19 +161,23 @@
         const nb = (habit.marks[isoDaysAgo(i + 1)] ? 1 : 0) + (habit.marks[isoDaysAgo(i - 1)] ? 1 : 0);
         cell.dataset.v = String(1 + nb);
       }
-      cell.title = iso + (habit.marks[iso] ? ' — done' : '');
+      cell.title = iso + (habit.marks[iso] ? ' — выполнено' : ' — не выполнено');
       map.append(cell);
     }
-    wrap.append(map);
+    const scroller = el('div', 'heatmap-scroll');
+    scroller.setAttribute('aria-label', 'Календарь выполнения привычки');
+    scroller.append(map);
+    wrap.append(scroller);
+    requestAnimationFrame(() => { scroller.scrollLeft = scroller.scrollWidth; });
 
     const legend = el('div', 'legend');
-    legend.append('less');
+    legend.append('меньше');
     for (const v of ['', '1', '2', '3']) {
       const c = el('span', 'cell');
       if (v) c.dataset.v = v;
       legend.append(c);
     }
-    legend.append('more');
+    legend.append('больше');
     wrap.append(legend);
 
     return wrap;
