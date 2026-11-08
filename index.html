@@ -59,7 +59,8 @@ function header(title,subtitle){return '<h1>'+escape(title)+'</h1><p class="sub"
 function progressBar(c){return '<div class="progress"><span style="width:'+percent(c)+'%"></span></div><div class="row small"><span>'+count(c)+' из '+c.duration+' дней</span><strong>'+percent(c)+'%</strong></div>'}
 function isWalking(c){return /прогулк|шаги|ходьб/i.test(c.name)}
 function stepGoal(c){return Math.max(100,Number(c.stepGoal)||3000)}
-function stepPanel(c){if(!isWalking(c))return '';const n=Number(c.steps?.[today()]||0),goal=stepGoal(c);return '<div class="step-panel"><div class="row"><span>🚶 Шаги сегодня</span><strong>'+n.toLocaleString('ru-RU')+' / '+goal.toLocaleString('ru-RU')+'</strong></div><div class="progress"><span style="width:'+Math.min(100,n/goal*100)+'%;background:linear-gradient(90deg,#a2e86d,#40bf63)"></span></div><div class="row"><button class="btn secondary" data-steps="'+escape(c.id)+'">Внести шаги</button><span class="small">'+(n>=goal?'Цель достигнута ✓':'Из Apple Здоровья через Команды или вручную')+'</span></div></div>'}
+function stepPanel(c){if(!isWalking(c))return '';const n=Number(c.steps?.[today()]||0),goal=stepGoal(c);return '<div class="step-panel"><div class="row"><span>🚶 Шаги из Apple Здоровья</span><strong>'+n.toLocaleString('ru-RU')+' / '+goal.toLocaleString('ru-RU')+'</strong></div><div class="progress"><span style="width:'+Math.min(100,n/goal*100)+'%;background:linear-gradient(90deg,#a2e86d,#40bf63)"></span></div><div class="row"><span class="small">'+(n>=goal?'Цель достигнута ✓':'Обновляется через ярлык LifeTrack на iPhone')+'</span><button class="btn secondary" data-health-help>Настроить</button></div></div>'}
+function importHealthSteps(){const match=location.hash.match(/^#healthsteps=(\\d{4}-\\d{2}-\\d{2}):(\\d{1,6})$/);if(!match)return;const date=match[1],n=Number(match[2]);if(n>100000||date!==today())return;let changed=false;data.challenges.forEach(c=>{if(!isWalking(c))return;c.steps=c.steps||{};c.steps[date]=n;if(diff(start(c),date)>=0&&diff(start(c),date)<c.duration){if(n>=stepGoal(c))c.marks[date]=true;else delete c.marks[date]}changed=true});if(changed)save();history.replaceState(null,'',location.pathname+location.search);return changed}
 function todayCard(c){
  const done=!!c.marks[today()],idx=currentDay(c),active=idx>=1&&idx<=c.duration;
  const dow=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'],offset=(new Date().getDay()+6)%7;
@@ -165,7 +166,7 @@ document.addEventListener('click',e=>{
  if(b.dataset.useTemplate!==undefined){template=Number(b.dataset.useTemplate);editing=null;tab='form';render();return}
  if(b.dataset.detail){detail=b.dataset.detail;render();return}
  if(b.dataset.edit){editing=b.dataset.edit;template=null;detail=null;tab='form';render();return}
- if(b.dataset.steps){const c=data.challenges.find(x=>x.id===b.dataset.steps);if(!c)return;const value=prompt('Сколько шагов показывает «Здоровье» за сегодня?',String(c.steps?.[today()]||''));if(value===null)return;const n=Number(value.trim().replace(/\\s/g,''));if(!Number.isInteger(n)||n<0||n>100000){alert('Укажи число от 0 до 100 000');return}c.steps=c.steps||{};c.steps[today()]=n;if(n>=stepGoal(c))c.marks[today()]=true;else delete c.marks[today()];save();render();return}
+ if(b.hasAttribute('data-health-help')){alert('Для автоматического обновления создай в Apple Командах ярлык LifeTrack: 1) «Найти образцы здоровья» → тип «Шаги», дата начала — сегодня; 2) «Вычислить статистику» → сумма значений шагов; 3) «Текущая дата» → формат yyyy-MM-dd; 4) «Текст» → https://dmitrynorayev-a11y.github.io/lifetrack-mini/#healthsteps=ДАТА:ШАГИ (вставь переменные даты и суммы вместо слов); 5) «Открыть URL» → результат «Текст». Добавь этот ярлык на экран Домой вместо старого значка LifeTrack. При запуске ярлык считает шаги и откроет приложение с обновлённой шкалой.');return}
  if(b.dataset.done){const c=data.challenges.find(x=>x.id===b.dataset.done);if(!c)return;c.marks[today()]?delete c.marks[today()]:c.marks[today()]=true;save();render();return}
  if(b.dataset.mark){const c=data.challenges.find(x=>x.id===b.dataset.mark),d=b.dataset.date;if(!c||diff(today(),d)>0)return;c.marks[d]?delete c.marks[d]:c.marks[d]=true;save();render();return}
  if(b.dataset.delete){if(!confirm('Удалить челлендж и все его отметки?'))return;data.challenges=data.challenges.filter(x=>x.id!==b.dataset.delete);save();detail=null;render();return}
@@ -214,6 +215,7 @@ document.addEventListener('submit',e=>{if(e.target.id!=='challengeForm')return;e
 });
 document.addEventListener('change',async e=>{if(e.target.id!=='importFile')return;try{const obj=JSON.parse(await e.target.files[0].text());if(!Array.isArray(obj.challenges)||!obj.challenges.every(c=>c&&typeof c.name==='string'&&typeof c.marks==='object'&&c.marks!==null&&[7,14,21,30,60,90].includes(Number(c.duration))))throw Error('Неверный формат');
  if(!confirm('Заменить текущие данные импортированной копией? Сначала сохрани резервную копию.'))return;data=obj;save();render();alert('Данные восстановлены')}catch(err){alert('Не удалось импортировать файл: '+err.message)}});
+importHealthSteps();
 render();
 })();
 </script></body></html>
