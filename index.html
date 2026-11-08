@@ -102,7 +102,7 @@ function renderChallenges(){
  (data.challenges.length?data.challenges.map(c=>'<article class="panel"><div class="row"><div class="grow"><div class="eyebrow">'+escape(c.category)+'</div><div class="name">'+escape(c.name)+'</div><p class="small">'+escape(start(c))+' · '+c.duration+' дней'+(c.legacy?' · перенесено из 1.1':'')+'</p></div><button class="btn secondary" data-detail="'+escape(c.id)+'">Открыть</button></div>'+progressBar(c)+'</article>').join(''):'<div class="panel empty">Пока нет челленджей</div>');
 }
 const JOURNAL_KEY='lifetrack.journal.v1';
-let journal=read(JOURNAL_KEY)||{};
+let journal={};try{journal=JSON.parse(localStorage.getItem(JOURNAL_KEY)||'{}')||{}}catch{journal={}}
 function renderProgress(){
  const all=data.challenges,total=all.reduce((n,c)=>n+count(c),0),finished=all.filter(c=>percent(c)===100).length;
  const entry=journal[today()]||{},days=Array.from({length:7},(_,i)=>shift(today(),i-6));
