@@ -141,7 +141,9 @@ function back(){if(tab==='form'){tab=template!==null?'template':editing?'challen
 document.addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b)return;
  if(b.dataset.tab){tab=b.dataset.tab;detail=null;editing=null;template=null;render();return}
- if(b.dataset.mood){journal[today()]={...(journal[today()]||{}),mood:Number(b.dataset.mood)};localStorage.setItem(JOURNAL_KEY,JSON.stringify(journal));render();return}\n if(b.hasAttribute('data-save-journal')){journal[today()]={...(journal[today()]||{}),energy:Number(document.getElementById('energy').value),note:document.getElementById('dailyNote').value,saved:true};localStorage.setItem(JOURNAL_KEY,JSON.stringify(journal));render();return}\n if(b.hasAttribute('data-back')){back();return}
+ if(b.dataset.mood){journal[today()]={...(journal[today()]||{}),mood:Number(b.dataset.mood)};localStorage.setItem(JOURNAL_KEY,JSON.stringify(journal));render();return}
+ if(b.hasAttribute('data-save-journal')){journal[today()]={...(journal[today()]||{}),energy:Number(document.getElementById('energy').value),note:document.getElementById('dailyNote').value,saved:true};localStorage.setItem(JOURNAL_KEY,JSON.stringify(journal));render();return}
+ if(b.hasAttribute('data-back')){back();return}
  if(b.hasAttribute('data-new')){editing=null;template=null;detail=null;tab='form';render();return}
  if(b.hasAttribute('data-library')){tab='library';template=null;render();return}
  if(b.dataset.template!==undefined){template=Number(b.dataset.template);tab='template';render();return}
