@@ -28,7 +28,7 @@ h1{font-size:34px;letter-spacing:-1px;line-height:1.15;margin:0 0 8px}h2{font-si
 'use strict';
 const KEY='lifetrack.v2',OLD='streaks.v1';
 const root=document.getElementById('screen'),nav=document.querySelector('.nav');
-let tab='today',detail=null,editing=null;
+let tab='today',detail=null,editing=null,template=null;
 const date=(d=new Date())=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
 const shift=(iso,n)=>{const [y,m,d]=iso.split('-').map(Number);return date(new Date(y,m-1,d+n))};
 const diff=(a,b)=>{const t=s=>{const [y,m,d]=s.split('-').map(Number);return Date.UTC(y,m-1,d)};return Math.round((t(b)-t(a))/86400000)};
@@ -66,9 +66,30 @@ function renderToday(){
  '<div class="row" style="margin-top:24px"><h2 style="margin:0">Мои задания</h2><button class="btn secondary" data-new>+ Создать</button></div>'+
  (list.length?list.map(todayCard).join(''):'<div class="panel empty">Активных заданий пока нет.<br>Создай первый челлендж и начни сегодня.</div>');
 }
+const library=[
+{name:'Чтение каждый день',category:'Саморазвитие',duration:30,level:'Легко',description:'Развивай привычку читать регулярно и с удовольствием.',benefit:'Улучшает концентрацию и расширяет кругозор.',instructions:'1. Выбери интересную книгу.\n2. Читай не менее 10 минут в день.\n3. Запиши одну мысль после чтения.'},
+{name:'English Boost',category:'Английский',duration:30,level:'Средне',description:'Английский понемногу, но каждый день.',benefit:'Укрепляет словарный запас и понимание речи.',instructions:'1. Слушай английскую речь 5 минут.\n2. Выучи 3 полезные фразы.\n3. Произнеси их вслух и составь свои примеры.'},
+{name:'30 дней силы',category:'Тренировки',duration:30,level:'Средне',description:'Небольшая ежедневная физическая активность с комфортной нагрузкой.',benefit:'Помогает закрепить привычку двигаться.',instructions:'1. Разомнись 3–5 минут.\n2. Выполни посильный комплекс упражнений.\n3. Отметь выполнение и самочувствие. При боли прекрати тренировку.'},
+{name:'Цифровой детокс',category:'Здоровье',duration:21,level:'Легко',description:'Освободи время от бесцельного скроллинга.',benefit:'Помогает вернуть внимание важным делам.',instructions:'1. Выбери 30 минут без социальных сетей.\n2. Убери телефон подальше.\n3. Займись чтением, прогулкой или творчеством.'},
+{name:'Дневник дня',category:'Саморазвитие',duration:30,level:'Легко',description:'Каждый вечер осмысливай прожитый день.',benefit:'Развивает рефлексию и осознанность.',instructions:'1. Запиши три события дня.\n2. Отметь, что получилось хорошо.\n3. Выбери одно улучшение на завтра.'},
+{name:'Чистая речь',category:'Саморазвитие',duration:21,level:'Средне',description:'Тренируй связную речь без долгих пауз и слов-паразитов.',benefit:'Развивает уверенность при выступлениях.',instructions:'1. Выбери случайную тему.\n2. Говори о ней 30 секунд, записывая себя.\n3. Каждый день добавляй по 5 секунд.\n4. Пересмотри запись и оцени ясность речи.'},
+{name:'Прогулка каждый день',category:'Здоровье',duration:30,level:'Легко',description:'Выделяй время для спокойной прогулки.',benefit:'Поддерживает регулярную активность.',instructions:'1. Выбери удобный маршрут.\n2. Прогуляйся 15–20 минут.\n3. Отметь выполнение.'},
+{name:'Творческий час',category:'Творчество',duration:14,level:'Средне',description:'Каждый день уделяй время своему проекту.',benefit:'Помогает продвигаться в любимом деле.',instructions:'1. Определи одну маленькую задачу.\n2. Работай 20 минут без отвлечений.\n3. Запиши, что получилось.'}
+];
+function renderLibrary(){
+ root.innerHTML='<button class="back" data-back>← К челленджам</button>'+header('Библиотека целей','Выбирай готовую программу, изучай шаги и запускай.')+
+ library.map((c,i)=>'<article class="panel"><div class="row"><div class="grow"><div class="eyebrow">'+escape(c.category)+' · '+escape(c.level)+'</div><div class="name">'+escape(c.name)+'</div><p class="sub" style="margin-top:8px">'+escape(c.description)+'</p><p class="small" style="margin-top:8px">'+c.duration+' дней</p></div><button class="btn secondary" data-template="'+i+'">Подробнее</button></div></article>').join('');
+}
+function renderTemplate(){
+ const c=library[template];if(!c){tab='library';return renderLibrary()}
+ root.innerHTML='<button class="back" data-back>← Библиотека</button>'+header(c.name,c.description)+
+ '<div class="panel"><div class="row"><span class="pill">'+escape(c.category)+'</span><span class="small">'+c.duration+' дней · '+escape(c.level)+'</span></div>'+
+ '<h2>Что даст челлендж</h2><p class="sub">'+escape(c.benefit)+'</p><h2>Как выполнять</h2><p class="sub" style="white-space:pre-line">'+escape(c.instructions)+'</p>'+
+ '<div class="note">Перед запуском можно изменить название, описание, длительность и дату старта.</div><button class="btn full" style="margin-top:18px" data-use-template="'+template+'">Настроить и начать</button></div>';
+}
 function renderChallenges(){
  root.innerHTML=header('Челленджи','Создавай цели на 7, 14, 21, 30, 60 или 90 дней.')+
- '<button class="btn full" style="margin-top:22px" data-new>+ Новый челлендж</button>'+
+ '<div class="actions"><button class="btn" data-library>◈ Готовые челленджи</button><button class="btn secondary" data-new>+ Свой</button></div>'+
  (data.challenges.length?data.challenges.map(c=>'<article class="panel"><div class="row"><div class="grow"><div class="eyebrow">'+escape(c.category)+'</div><div class="name">'+escape(c.name)+'</div><p class="small">'+escape(start(c))+' · '+c.duration+' дней'+(c.legacy?' · перенесено из 1.1':'')+'</p></div><button class="btn secondary" data-detail="'+escape(c.id)+'">Открыть</button></div>'+progressBar(c)+'</article>').join(''):'<div class="panel empty">Пока нет челленджей</div>');
 }
 function renderProgress(){
@@ -85,11 +106,11 @@ function renderDetail(){
  for(let i=0;i<c.duration;i++){const d=shift(start(c),i),future=diff(today(),d)>0,done=!!c.marks[d],isToday=d===today();grid+='<button class="tile '+(done?'done ':'')+(future?'future ':'')+(isToday?'current':'')+'" data-mark="'+escape(c.id)+'" data-date="'+d+'" '+(future?'disabled':'')+' aria-label="День '+(i+1)+(done?', выполнено':'')+'">'+(done?'✓':i+1)+'</button>'}
  root.innerHTML='<button class="back" data-back>← Назад</button>'+header(c.name,c.description||c.category)+
  '<div class="panel"><div class="row"><span class="pill">'+escape(c.category)+'</span><span class="small">'+c.duration+' дней · '+(c.repeat==='daily'?'Ежедневно':'По выбору')+'</span></div>'+progressBar(c)+
- '<h2>Календарь челленджа</h2><p class="sub">Нажми на прошедший день, чтобы отметить или снять выполнение.</p><div class="grid-days">'+grid+'</div>'+
+ (c.instructions?'<h2>Как выполнять</h2><p class="sub" style="white-space:pre-line">'+escape(c.instructions)+'</p>':'')+'<h2>Календарь челленджа</h2><p class="sub">Нажми на прошедший день, чтобы отметить или снять выполнение.</p><div class="grid-days">'+grid+'</div>'+
  '<div class="actions"><button class="btn secondary" data-edit="'+escape(c.id)+'">Настроить</button><button class="btn ghost danger" data-delete="'+escape(c.id)+'">Удалить</button></div></div>';
 }
 function renderForm(){
- const c=editing?data.challenges.find(x=>x.id===editing):null;
+ const c=editing?data.challenges.find(x=>x.id===editing):(template!==null?library[template]:null);
  const opt=(a,v)=>a.map(x=>'<option value="'+x+'" '+(String(v)===String(x)?'selected':'')+'>'+x+'</option>').join('');
  root.innerHTML='<button class="back" data-back>← Назад</button>'+header(c?'Настройки челленджа':'Новый челлендж','Выбери цель и двигайся к ней день за днём.')+
  '<form id="challengeForm" class="panel"><label class="field" for="fName">Название</label><input id="fName" maxlength="60" required placeholder="Например, читать 20 минут" value="'+escape(c?.name||'')+'">'+
@@ -98,18 +119,21 @@ function renderForm(){
  '<label class="field" for="fDuration">Продолжительность</label><select id="fDuration">'+opt([7,14,21,30,60,90],c?.duration||30)+'</select>'+
  '<label class="field" for="fRepeat">Повторение</label><select id="fRepeat"><option value="daily" '+(!c||c.repeat==='daily'?'selected':'')+'>Ежедневно</option><option value="flex" '+(c?.repeat==='flex'?'selected':'')+'>По выбору (отмечать нужные дни)</option></select>'+
  '<label class="field" for="fStart">Дата старта</label><input id="fStart" type="date" required value="'+escape(c?.start||today())+'">'+
- '<p class="note">Отметки привязаны к календарным датам. При изменении даты старта старые отметки сохранятся, но могут оказаться за пределами нового периода.</p>'+
+ '<label class="field" for="fInstructions">Как выполнять (инструкция)</label><textarea id="fInstructions" style="min-height:145px" maxlength="2000" placeholder="Пошаговые действия на каждый день">'+escape(c?.instructions||'')+'</textarea><p class="note">Отметки привязаны к календарным датам. При изменении даты старта старые отметки сохранятся, но могут оказаться за пределами нового периода.</p>'+
  '<div class="form-actions"><button class="btn ghost" type="button" data-back>Отмена</button><button class="btn" type="submit">Сохранить</button></div></form>';
 }
-function render(){nav.classList.toggle('hidden',!!detail||tab==='form');nav.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));if(tab==='form')renderForm();else if(detail)renderDetail();else if(tab==='challenges')renderChallenges();else if(tab==='progress')renderProgress();else renderToday()}
-function back(){if(tab==='form'){tab=editing?'challenges':'today';editing=null}detail=null;render()}
+function render(){nav.classList.toggle('hidden',!!detail||['form','library','template'].includes(tab));nav.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));if(tab==='form')renderForm();else if(tab==='library')renderLibrary();else if(tab==='template')renderTemplate();else if(detail)renderDetail();else if(tab==='challenges')renderChallenges();else if(tab==='progress')renderProgress();else renderToday()}
+function back(){if(tab==='form'){tab=template!==null?'template':editing?'challenges':'today';editing=null}else if(tab==='template'){tab='library'}else if(tab==='library'){tab='challenges';template=null}else{detail=null}render()}
 document.addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b)return;
  if(b.dataset.tab){tab=b.dataset.tab;detail=null;editing=null;render();return}
  if(b.hasAttribute('data-back')){back();return}
- if(b.hasAttribute('data-new')){editing=null;detail=null;tab='form';render();return}
+ if(b.hasAttribute('data-new')){editing=null;template=null;detail=null;tab='form';render();return}
+ if(b.hasAttribute('data-library')){tab='library';template=null;render();return}
+ if(b.dataset.template!==undefined){template=Number(b.dataset.template);tab='template';render();return}
+ if(b.dataset.useTemplate!==undefined){template=Number(b.dataset.useTemplate);editing=null;tab='form';render();return}
  if(b.dataset.detail){detail=b.dataset.detail;render();return}
- if(b.dataset.edit){editing=b.dataset.edit;detail=null;tab='form';render();return}
+ if(b.dataset.edit){editing=b.dataset.edit;template=null;detail=null;tab='form';render();return}
  if(b.dataset.done){const c=data.challenges.find(x=>x.id===b.dataset.done);if(!c)return;c.marks[today()]?delete c.marks[today()]:c.marks[today()]=true;save();render();return}
  if(b.dataset.mark){const c=data.challenges.find(x=>x.id===b.dataset.mark),d=b.dataset.date;if(!c||diff(today(),d)>0)return;c.marks[d]?delete c.marks[d]:c.marks[d]=true;save();render();return}
  if(b.dataset.delete){if(!confirm('Удалить челлендж и все его отметки?'))return;data.challenges=data.challenges.filter(x=>x.id!==b.dataset.delete);save();detail=null;render();return}
@@ -118,9 +142,9 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('submit',e=>{if(e.target.id!=='challengeForm')return;e.preventDefault();
  const name=document.getElementById('fName').value.trim();if(name.length<2){alert('Название должно содержать минимум 2 символа');return}
- const values={name,description:document.getElementById('fDescription').value.trim(),category:document.getElementById('fCategory').value,duration:Number(document.getElementById('fDuration').value),repeat:document.getElementById('fRepeat').value,start:document.getElementById('fStart').value};
+ const values={name,description:document.getElementById('fDescription').value.trim(),category:document.getElementById('fCategory').value,duration:Number(document.getElementById('fDuration').value),repeat:document.getElementById('fRepeat').value,start:document.getElementById('fStart').value,instructions:document.getElementById('fInstructions').value.trim()};
  if(editing){const c=data.challenges.find(x=>x.id===editing);if(c)Object.assign(c,values)}else data.challenges.unshift({id:uid(),...values,marks:{}});
- save();editing=null;tab='challenges';detail=null;render();
+ save();editing=null;template=null;tab='challenges';detail=null;render();
 });
 document.addEventListener('change',async e=>{if(e.target.id!=='importFile')return;try{const obj=JSON.parse(await e.target.files[0].text());if(!Array.isArray(obj.challenges)||!obj.challenges.every(c=>c&&typeof c.name==='string'&&typeof c.marks==='object'&&c.marks!==null&&[7,14,21,30,60,90].includes(Number(c.duration))))throw Error('Неверный формат');
  if(!confirm('Заменить текущие данные импортированной копией? Сначала сохрани резервную копию.'))return;data=obj;save();render();alert('Данные восстановлены')}catch(err){alert('Не удалось импортировать файл: '+err.message)}});
