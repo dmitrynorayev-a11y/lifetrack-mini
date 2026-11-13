@@ -217,5 +217,8 @@ document.addEventListener('change',async e=>{if(e.target.id!=='importFile')retur
  if(!confirm('Заменить текущие данные импортированной копией? Сначала сохрани резервную копию.'))return;data=obj;save();render();alert('Данные восстановлены')}catch(err){alert('Не удалось импортировать файл: '+err.message)}});
 importHealthSteps();
 render();
+window.addEventListener('hashchange',()=>{if(importHealthSteps())render()});
+window.addEventListener('pageshow',()=>{if(importHealthSteps())render()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&importHealthSteps())render()});
 })();
 </script></body></html>
