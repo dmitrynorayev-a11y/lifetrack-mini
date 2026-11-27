@@ -33,4 +33,20 @@ if (!pbx.includes("CODE_SIGN_ENTITLEMENTS = App/App.entitlements;")) {
   pbx = pbx.replace(regex, "CODE_SIGN_ENTITLEMENTS = App/App.entitlements;\n\t\t\t\t$1");
 }
 fs.writeFileSync(project, pbx);
-console.log("VYRA HealthKit entitlement + privacy keys configured");
+// Create a real VYRA home-screen icon rather than Capacitor's placeholder.
+const iconSource = path.resolve("public/vyra-app-icon.png");
+const iconFolder = path.join(root, "App/Assets.xcassets/AppIcon.appiconset");
+if (fs.existsSync(iconSource)) {
+  const { execFileSync } = await import("node:child_process");
+  fs.mkdirSync(iconFolder, { recursive: true });
+  execFileSync("sips", [
+    "-z", "1024", "1024", iconSource,
+    "--out", path.join(iconFolder, "AppIcon.png")
+  ], { stdio: "ignore" });
+  const contents = {
+    images: [{ filename: "AppIcon.png", idiom: "universal", platform: "ios", size: "1024x1024" }],
+    info: { author: "xcode", version: 1 }
+  };
+  fs.writeFileSync(path.join(iconFolder, "Contents.json"), JSON.stringify(contents,null,2));
+}
+console.log("VYRA HealthKit entitlement, privacy keys and app icon configured");
