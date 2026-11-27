@@ -1,0 +1,22 @@
+name: VYRA iOS build check
+on:
+  push:
+    paths:
+      - "ios/**"
+      - ".github/workflows/vyra-ios-build.yml"
+  workflow_dispatch:
+
+jobs:
+  ios-simulator:
+    runs-on: macos-15
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        run: cd ios && xcodegen generate
+      - name: Compile iOS simulator
+        run: |
+          cd ios
+          xcodebuild -project VYRA.xcodeproj -scheme VYRA -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
