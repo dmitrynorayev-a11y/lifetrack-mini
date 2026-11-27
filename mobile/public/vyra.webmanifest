@@ -1,0 +1,20 @@
+{
+  "name": "VYRA — Жизнь как игра",
+  "short_name": "VYRA",
+  "display": "standalone",
+  "start_url": "./index.html",
+  "theme_color": "#100f17",
+  "background_color": "#100f17",
+  "icons": [
+    {
+      "src": "./vyra-app-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "./vyra-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
