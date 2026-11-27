@@ -1,0 +1,25 @@
+{
+  "name": "VYRA — Жизнь как игра",
+  "short_name": "VYRA",
+  "description": "RPG-прокачка в реальной жизни",
+  "start_url": "./rpg.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#100f17",
+  "theme_color": "#100f17",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "./vyra-app-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./vyra-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
