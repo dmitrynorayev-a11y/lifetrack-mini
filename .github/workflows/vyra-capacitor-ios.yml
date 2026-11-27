@@ -1,0 +1,44 @@
+name: VYRA Capacitor iOS
+on:
+  push:
+    paths:
+      - "mobile/**"
+      - ".github/workflows/vyra-capacitor-ios.yml"
+  workflow_dispatch:
+
+jobs:
+  ios-compile:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install dependencies
+        working-directory: mobile
+        run: npm install
+      - name: Test data normalization
+        working-directory: mobile
+        run: npm test
+      - name: Build VYRA interface
+        working-directory: mobile
+        run: npm run build
+      - name: Check Xcode version
+        run: |
+          xcodebuild -version
+      - name: Create native iOS project
+        working-directory: mobile
+        run: |
+          npx cap add ios --packagemanager SPM
+          npx cap sync ios
+          node scripts/configure-ios.mjs
+      - name: Validate HealthKit entitlement
+        working-directory: mobile
+        run: |
+          /usr/libexec/PlistBuddy -c "Print NSHealthShareUsageDescription" ios/App/App/Info.plist
+          grep "com.apple.developer.healthkit" ios/App/App/App.entitlements
+      - name: Compile iOS Simulator app (unsigned)
+        working-directory: mobile
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build

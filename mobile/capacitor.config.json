@@ -1,0 +1,8 @@
+{
+  "appId": "app.vyra.mobile",
+  "appName": "VYRA",
+  "webDir": "dist",
+  "ios": {
+    "contentInset": "never"
+  }
+}
